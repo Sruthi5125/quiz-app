@@ -17,15 +17,15 @@ A full-stack quiz application that uses AI to generate customized quizzes on any
 
 ## Tech Stack
 
-| Layer | Technology | Why |
-|---|---|---|
-| Backend | Django 5.1 + DRF | Rapid model-to-API development, built-in admin, strong ecosystem |
-| Auth | JWT (SimpleJWT) | Stateless, scales horizontally, no server-side sessions |
-| Database | PostgreSQL | Relational integrity for user→quiz→attempt→answer chain |
-| AI | Groq API (`llama-3.1-8b-instant`) | Fast inference, low latency for real-time quiz generation |
-| Frontend | Next.js 16 (App Router) | File-based routing, React Server Components, TypeScript |
-| Styling | Tailwind CSS 4 | Utility-first, rapid UI iteration |
-| HTTP Client | Axios | Interceptor support for auto-attaching JWT tokens |
+| Layer | Technology |
+|---|---|
+| Backend | Django 5.1 + DRF | 
+| Auth | JWT (SimpleJWT) |
+| Database | PostgreSQL |
+| AI | Groq API (`llama-3.1-8b-instant`) | 
+| Frontend | Next.js 16 (App Router) | 
+| Styling | Tailwind CSS 4 | 
+| HTTP Client | Axios | 
 
 ---
 
