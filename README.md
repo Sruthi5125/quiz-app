@@ -4,7 +4,7 @@ A full-stack quiz application that uses AI to generate customized quizzes on any
 
 ---
 
-**Live Demo:** [https://quiz-app-wine-pi.vercel.app/login](https://quiz-app-wine-pi.vercel.app/login)
+**Deployed App:** [https://quiz-app-wine-pi.vercel.app/login](https://quiz-app-wine-pi.vercel.app/login)
 
 ---
 
