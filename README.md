@@ -107,7 +107,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000/api
 ```
 
 ```bash
-npm run dev
+npx next dev
 ```
 
 Frontend runs at: `http://localhost:3000`
@@ -241,7 +241,6 @@ This significantly improved question quality consistency across difficulty level
 | Admin Panel | Full CRUD visibility on all models via Django admin |
 | Responsive UI | Tailwind CSS, works on desktop and mobile |
 | Error States | API errors surface clearly in the UI, not silent failures |
-| Loading States | Async operations show loading indicators |
 
 ### Skipped (and Why)
 
@@ -252,7 +251,6 @@ This significantly improved question quality consistency across difficulty level
 | **Leaderboards / social features** | Out of scope — the data model supports multi-user but the UI focuses on personal performance. |
 | **Question shuffling per attempt** | `order_index` exists on `Question` to support this. Skipped to keep the review page predictable (same order as the attempt). |
 | **Password reset via email** | Requires email SMTP configuration. Deferred as it adds deployment complexity without changing the core experience. |
-| **Refresh token rotation** | SimpleJWT supports it but it requires frontend handling for concurrent requests. Skipped for simplicity; straightforward to enable in `settings.py`. |
 | **Rate limiting on AI generation** | Should be added before any public deployment. The Groq API has its own rate limits but there's no per-user throttle in the app yet. |
 
 ---
