@@ -4,6 +4,10 @@ A full-stack quiz application that uses AI to generate customized quizzes on any
 
 ---
 
+**Live Demo:** [https://quiz-app-wine-pi.vercel.app/login](https://quiz-app-wine-pi.vercel.app/login)
+
+---
+
 ## Table of Contents
 
 1. [Tech Stack](#tech-stack)
@@ -174,17 +178,6 @@ I organized the API into three Django apps — `users`, `quizzes`, and `attempts
 | `POST` | `/api/attempts/<attempt_id>/submit/` | Submit answers `{question_id: selected_option}` |
 | `GET` | `/api/attempts/<attempt_id>/results/` | Full results with per-question review + explanations |
 | `GET` | `/api/attempts/history/` | All completed attempts for the user (summary only) |
-
-### Design Decisions
-
-**Why nested serializers instead of separate endpoints for questions?**
-A quiz without its questions is useless — the frontend always needs both together. Nesting `QuestionSerializer` inside `QuizSerializer` means one request to load the quiz page instead of two, eliminating a waterfall.
-
-**Why two serializers for attempts (`QuizAttemptSerializer` vs `AttemptSummarySerializer`)?**
-The history list could contain dozens of entries. Serializing full `AttemptAnswer` detail for every row would be expensive and the frontend doesn't need it. `AttemptSummarySerializer` returns only the fields needed for the history card (score, percentage, topic, date).
-
-**Why a separate `start` step before `submit`?**
-Recording `started_at` on the attempt row lets us compute `time_taken_seconds` accurately at submission. It also creates a clear state machine (started → submitted) which prevents duplicate submissions and enables future support for auto-saving mid-attempt.
 
 ---
 
