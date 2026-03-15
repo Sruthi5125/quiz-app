@@ -131,30 +131,6 @@ User
       └── AttemptAnswer (one-to-many)
 ```
 
-### Key Design Choices
-
-**1. Separating `Quiz` from `QuizAttempt`**
-
-A quiz is a reusable template — its questions are fixed once generated. An attempt represents a single user session where they answer those questions. This separation means:
-- The same quiz can be attempted multiple times (retake support)
-- Quiz data and scoring data are never mixed
-- History queries are cheap: just filter `QuizAttempt` by user
-
-**2. Storing `score`, `total_questions`, and `percentage` redundantly on `QuizAttempt`**
-
-These could be computed from `AttemptAnswer` records at query time, but I chose to denormalize them onto the attempt row. This trades a small amount of storage for significantly faster history and stats queries — no aggregation needed when listing all past attempts.
-
-**3. `AttemptAnswer` records the selected option and `is_correct` at submission time**
-
-Rather than re-deriving correctness by joining to `Question` on every read, `is_correct` is computed once during submission and stored. This makes the results page fast and also future-proofs against hypothetical question edits (the historical answer record reflects what was correct at the time of the attempt).
-
-**4. `Question.order_index`**
-
-Questions are stored with an explicit ordering field rather than relying on insertion order or primary key sequence. This allows deterministic rendering and potential future support for shuffling at the serializer level without altering the database records.
-
-**5. Quiz `status` field (`generating` → `ready` / `failed`)**
-
-AI generation is not instant and can fail. The `status` field lets the frontend poll or display a "generating" state gracefully without blocking the API response. If Groq returns malformed JSON or an error, the quiz is marked `failed` rather than leaving a partial record.
 
 ### Model Summary
 
