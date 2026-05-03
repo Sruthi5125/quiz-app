@@ -181,51 +181,6 @@ I organized the API into three Django apps — `users`, `quizzes`, and `attempts
 
 ---
 
-## Challenges & Solutions
-
-### 1. AI Returns Inconsistent JSON
-
-**Problem:** The Groq API (`llama-3.1-8b-instant`) sometimes wraps its response in markdown code fences (` ```json ... ``` `) and occasionally omits fields or returns fewer questions than requested.
-
-**Solution:** Built a multi-layer validation pipeline in `generation_service.py`:
-1. Strip markdown fences with a regex before parsing
-2. Validate the presence of all required fields (`question_text`, `option_a` through `option_d`, `correct_option`, `explanation`)
-3. Validate that `correct_option` is strictly one of `A`, `B`, `C`, `D`
-4. Deduplicate questions by normalized question text to prevent near-identical entries
-5. Validate final count matches requested `question_count`
-
-If any validation step fails, the quiz is marked `status='failed'` with a clear error rather than silently saving bad data.
-
-### 2. JWT Token Expiry Mid-Session
-
-**Problem:** Access tokens expire after 30 minutes. A user mid-quiz would get 401 errors.
-
-**Solution:** Added an Axios request interceptor in `frontend/src/lib/api.ts` that:
-- Attaches the current `accessToken` from localStorage to every request
-- On a 401 response, automatically calls `/api/auth/refresh/` with the stored refresh token, updates localStorage, retries the original request once
-- If the refresh also fails (expired or revoked), redirects to `/login`
-
-The user never sees an error mid-quiz due to token expiry.
-
-### 3. Transactional Quiz Creation
-
-**Problem:** If AI generation succeeds but saving questions to the database fails (e.g., a validation error on the 8th of 10 questions), the quiz would be left in a partial, inconsistent state.
-
-**Solution:** The entire quiz creation (quiz row + all question rows) is wrapped in a single database transaction using Django's `transaction.atomic()`. If any question fails to save, the whole operation rolls back. The API returns either a complete, ready quiz or an error — never a partial quiz.
-
-### 4. Difficulty Calibration for AI
-
-**Problem:** Asking the AI to "make a hard quiz" without guidance produced questions that were inconsistently difficult.
-
-**Solution:** The prompt engineering in `generation_service.py` includes explicit difficulty descriptors:
-- `easy` → factual recall, straightforward wording, obvious distractors
-- `medium` → conceptual understanding, requires some reasoning
-- `hard` → nuanced distinctions, application-level thinking, plausible distractors
-
-This significantly improved question quality consistency across difficulty levels.
-
----
-
 ## Features: Implemented vs. Skipped
 
 ### Implemented
@@ -246,12 +201,10 @@ This significantly improved question quality consistency across difficulty level
 
 | Feature | Reason Skipped |
 |---|---|
-| **Async quiz generation** | For the scope of this project, synchronous generation (1–3 seconds via Groq) is acceptable. Celery/Redis async would be the right call at scale but adds significant infrastructure complexity. |
 | **Timer on quiz page** | The `time_taken_seconds` is already recorded server-side. A visible countdown was deprioritized to keep the UX low-pressure for this MVP. |
-| **Leaderboards / social features** | Out of scope — the data model supports multi-user but the UI focuses on personal performance. |
-| **Question shuffling per attempt** | `order_index` exists on `Question` to support this. Skipped to keep the review page predictable (same order as the attempt). |
+| **Leaderboards / social features** | The data model supports multi-user but the UI focuses on personal performance. |
+| **Question shuffling per attempt** | Skipped to keep the review page predictable (same order as the attempt). |
 | **Password reset via email** | Requires email SMTP configuration. Deferred as it adds deployment complexity without changing the core experience. |
-| **Rate limiting on AI generation** | Should be added before any public deployment. The Groq API has its own rate limits but there's no per-user throttle in the app yet. |
 
 ---
 
